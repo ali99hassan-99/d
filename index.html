@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>سجل الديون</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg: #e0e5ec;
+            --card: #e0e5ec;
+            --input-bg: #d7dce2;
+            --text: #4e586c;
+            --sub: #8e9ba9;
+            --accent: #38a169;
+            --danger: #e53e3e;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --radius: 15px;
+            --modal-bg: rgba(224, 229, 236, 0.95);
+        }
+        [data-theme="dark"] {
+            --bg: #1f2024;
+            --card: #27282c;
+            --input-bg: #1a1b1e;
+            --text: #e0e1e6;
+            --sub: #9da3af;
+            --accent: #38a169;
+            --danger: #e53e3e;
+            --shadow-light: #303135;
+            --shadow-dark: #121315;
+            --modal-bg: rgba(39, 40, 44, 0.95);
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%;margin:0;font-family:"Almarai", sans-serif;background-color:var(--bg);color:var(--text);line-height:1.6;transition:background-color .3s, color .3s;}
+        .container{max-width:1100px;margin:24px auto;padding:16px}
+        header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap: wrap;}
+        .brand{display:flex;align-items:center;gap:12px}
+        .logo{width:42px;height:42px;border-radius:var(--radius);background:var(--accent);box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);}
+        h1{font-size:24px;margin:0;font-weight:700}
+        .grid{display:grid;gap:24px;grid-template-columns:1fr;}
+        @media(min-width:900px){.grid{grid-template-columns:390px 1fr;}}
+        .card{background:var(--card);border-radius:var(--radius);box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);padding:24px;transition:all 0.3s ease-in-out;}
+        .card:hover{box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);}
+        .card .head{padding-bottom:16px;border-bottom:1px solid var(--sub);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+        .card .content{padding:0}
+        input,select,textarea{width:100%;padding:14px 16px;border-radius:10px;border:none;background:var(--input-bg);color:var(--text);outline:none;transition:box-shadow .3s}
+        input:focus,select:focus,textarea:focus{box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);}
+        input::placeholder,textarea::placeholder{color:var(--sub)}
+        label{font-size:14px;color:var(--sub);display:block;margin-bottom:6px}
+        .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+        .btn{padding:12px 18px;border-radius:10px;border:none;background:var(--card);color:var(--text);cursor:pointer;font-weight:700;box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);transition:all .3s ease-in-out;}
+        .btn:hover{box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);}
+        .btn:active{box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);}
+        .btn.primary{background:var(--accent);color:#fff;box-shadow: 6px 6px 12px rgba(56,161,105,.3), -6px -6px 12px rgba(56,161,105,.3);}
+        .btn.primary:hover{box-shadow: 4px 4px 8px rgba(56,161,105,.3), -4px -4px 8px rgba(56,161,105,.3);}
+        .btn.primary:active{box-shadow: inset 2px 2px 5px rgba(56,161,105,.5), inset -2px -2px 5px rgba(56,161,105,.5);}
+        .btn.blue{background:var(--accent2);color:#fff;}
+        .btn.ghost{background:transparent;box-shadow:none;border:1px solid var(--sub);color:var(--sub)}
+        .btn.ghost:hover{background:var(--sub);color:var(--card);}
+        .btn.ghost:active{background:var(--sub);color:var(--card);}
+        .btn.warn{background:var(--danger);color:#fff;box-shadow: 6px 6px 12px rgba(229,62,62,.3), -6px -6px 12px rgba(229,62,62,.3);}
+        .btn.warn:hover{box-shadow: 4px 4px 8px rgba(229,62,62,.3), -4px -4px 8px rgba(229,62,62,.3);}
+        .btn.warn:active{box-shadow: inset 2px 2px 5px rgba(229,62,62,.5), inset -2px -2px 5px rgba(229,62,62,.5);}
+        table{width:100%;border-collapse:separate;border-spacing:0 10px}
+        thead th{font-size:12px;color:var(--sub);text-align:right;padding:8px 10px;font-weight:400}
+        tbody tr{background:var(--card);border-radius:12px;box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);transition:box-shadow .3s}
+        tbody tr:hover{box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);}
+        tbody tr td{padding:12px 10px;vertical-align:middle;font-size:14px;}
+        .tag{padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;}
+        .paid{background:rgba(56,161,105,.2);color:var(--accent);}
+        .unpaid{background:rgba(229,62,62,.2);color:var(--danger);}
+        .toolbar{display:flex;gap:10px;flex-wrap:wrap;}
+        .stats{display:grid;gap:12px;}
+        @media(min-width:500px){.stats{grid-template-columns:repeat(3,1fr)}}
+        .stat{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);}
+        .stat .title{font-size:14px;color:var(--sub);margin-bottom:6px}
+        .stat .value{font-size:26px;font-weight:700;color:var(--text)}
+        .footer-note{color:var(--sub);font-size:12px;margin-top:16px;text-align:center}
+        .file-input{display:none}
+        .customer-item-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            font-size: 11px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .customer-item-stats div {
+            padding: 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .customer-item-stats .unpaid { background-color: rgba(229, 62, 62, 0.15); color: var(--danger); }
+        .customer-item-stats .paid { background-color: rgba(56, 161, 105, 0.15); color: var(--accent); }
+        .customer-item-stats .total { background-color: rgba(76, 120, 169, 0.15); color: #4c78a9; }
+        .customer-list-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            cursor: pointer;
+            padding: 16px;
+            border-radius: 12px;
+            background: var(--card);
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            transition: all .3s ease-in-out;
+            margin-bottom: 15px;
+        }
+        .customer-list-item:hover {
+            box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+        }
+        #customerList { list-style: none; padding: 0; }
+        .customer-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+        }
+        .customer-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: var(--modal-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: var(--card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            max-width: 500px;
+            width: 90%;
+            animation: fadeIn .3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-close {
+            color: var(--sub);
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .modal-close:hover, .modal-close:focus {
+            color: var(--danger);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .theme-switcher, .font-switcher {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--card);
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .3s;
+        }
+        .theme-switcher:hover, .font-switcher:hover {
+            box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+        }
+        .theme-icon, .font-icon {
+            font-size: 20px;
+            color: var(--sub);
+        }
+        #theme-menu, #font-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+            z-index: 10;
+            list-style: none;
+            margin: 10px 0 0;
+            display: none;
+        }
+        #theme-menu.show, #font-menu.show {
+            display: block;
+        }
+        #theme-menu li, #font-menu li {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color .2s;
+            white-space: nowrap;
+        }
+        #theme-menu li:hover, #font-menu li:hover {
+            background-color: var(--input-bg);
+        }
+        .mobile-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        @media(max-width: 768px) {
+            .mobile-actions {
+                margin-top: 24px;
+            }
+        }
+
+        @media print {
+            body { background: white; color: black; }
+            .container { padding: 0; margin: 0; max-width: none; }
+            header, .card .head, .toolbar, .footer-note, #backToCustomersBtn, #formCard, .modal, .theme-switcher, .font-switcher, #addCustomerBtn, .customer-actions, .actions { display: none; }
+
+            #customer-details-view header {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 24px;
+                border-bottom: 1px solid #ccc;
+                padding-bottom: 16px;
+            }
+            #customer-details-view header .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            #customer-details-view header .brand div {
+                color: black;
+            }
+            .customer-info-print {
+                display: flex !important;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .card { border: none; box-shadow: none; background: white; }
+            h1 {
+                font-size: 28px;
+                color: black;
+                display: block;
+            }
+            .grid { display: block; }
+            .stat {
+                border: 1px solid #ccc;
+                box-shadow: none;
+                background: white;
+            }
+            table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+            thead th, tbody td { border: 1px solid #ccc; padding: 8px; color: black; }
+            .tag { border: none; background: transparent; }
+            .customer-info-print {
+                font-size: 14px;
+                color: black !important;
+            }
+            .customer-info-print .customer-avatar-print {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1px solid #ccc;
+            }
+            .customer-info-print strong { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="brand">
+            <div class="logo"></div>
+            <div>
+                <h1>سجل الديون</h1>
+                <div style="color:var(--sub);font-size:12px">إدارة الديون وتتبّع السداد بسهولة</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div class="theme-switcher" id="theme-switcher">
+                <span class="theme-icon">☀️</span>
+                <ul id="theme-menu">
+                    <li data-theme="light">نهاري ☀️</li>
+                    <li data-theme="dark">ليلي 🌙</li>
+                    <li data-theme="system">تلقائي ⚙️</li>
+                </ul>
+            </div>
+            <div class="font-switcher" id="font-switcher">
+                <span class="font-icon" style="font-family: inherit;">أ</span>
+                <ul id="font-menu">
+                    <li data-font="Almarai">الافتراضي</li>
+                    <li data-font="Tajawal">تجوال</li>
+                    <li data-font="Noto Sans Arabic">نوتو سانس</li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-actions">
+        <div class="actions">
+            <button class="btn" id="printBtn">طباعة</button>
+            <button class="btn" id="exportCsvBtn">تصدير Excel</button>
+            <button class="btn" id="exportJsonBtn">تصدير JSON</button>
+            <label class="btn" for="importJson">استيراد JSON</label>
+            <input id="importJson" type="file" accept="application/json" class="file-input" />
+        </div>
+    </div>
+
+    <div id="customer-list-view">
+        <section class="card">
+            <div class="head">
+                <strong>إجمالي الديون المتبقية</strong>
+            </div>
+            <div class="content">
+                <div class="stats">
+                    <div class="stat"><div class="title">المجموع الكلي</div><div class="value" id="totalAllRemaining">0</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top: 24px;">
+            <div class="head"><strong>قائمة العملاء</strong></div>
+            <div class="content">
+                <input type="text" id="customerSearch" placeholder="ابحث عن عميل..." style="margin-bottom: 15px;" />
+                <button class="btn primary" id="addCustomerBtn">إضافة عميل جديد</button>
+                <ul id="customerList"></ul>
+            </div>
+        </section>
+    </div>
+
+    <div id="customerModal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h2 id="modalTitle" style="margin-top:0"></h2>
+        <form id="customerForm">
+          <input type="hidden" id="customerId" />
+          <div>
+            <label for="newCustomerName">اسم العميل</label>
+            <input type="text" id="newCustomerName" placeholder="مثال: أحمد علي" required />
+          </div>
+          <div style="margin-top: 15px;">
+            <label for="newCustomerPhone">رقم الهاتف (اختياري)</label>
+            <input type="tel" id="newCustomerPhone" placeholder="مثال: 0770xxxxxxx" />
+          </div>
+          <div style="margin-top: 15px;">
+            <label for="newCustomerAvatar">صورة العميل (اختياري)</label>
+            <input type="file" id="newCustomerAvatar" accept="image/*" />
+          </div>
+          <div class="actions" style="margin-top: 20px;">
+            <button class="btn primary" type="submit" id="saveCustomerBtn">حفظ</button>
+            <button class="btn warn" type="button" id="deleteCustomerBtn" style="display:none;">حذف العميل</button>
+            <button class="btn" type="button" id="cancelCustomerBtn">إلغاء</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="customer-details-view" style="display:none;">
+        <header>
+            <div class="brand">
+                <button class="btn" id="backToCustomersBtn">العودة</button>
+                <div>
+                    <h1 id="customerNameTitle"></h1>
+                    <div class="customer-info-print" style="display:none;"></div>
+                </div>
+            </div>
+        </header>
+        <div class="grid">
+            <section class="card" id="formCard">
+                <div class="head"><strong>إضافة / تعديل دين</strong><small id="formMode" style="color:var(--sub)">وضع الإضافة</small></div>
+                <div class="content">
+                    <form id="debtForm">
+                        <input type="hidden" id="debtId" />
+                        <div class="row">
+                            <div>
+                                <label>المبلغ (دينار)</label>
+                                <input id="amount" type="number" step="0.01" min="0" placeholder="مثال: 25000" required />
+                            </div>
+                            <div>
+                                <label>التاريخ</label>
+                                <input id="date" type="date" required />
+                            </div>
+                        </div>
+                        <div style="margin-top:12px">
+                            <label>الحالة</label>
+                            <select id="status">
+                                <option value="unpaid">غير مسدد</option>
+                                <option value="paid">مسدد</option>
+                            </select>
+                        </div>
+                        <div style="margin-top:12px">
+                            <label>وصف / ملاحظة</label>
+                            <textarea id="note" rows="3" placeholder="تفاصيل إضافية (اختياري)"></textarea>
+                        </div>
+                        <div class="actions" style="margin-top:20px">
+                            <button class="btn primary" type="submit">حفظ</button>
+                            <button class="btn" type="button" id="resetForm">إلغاء</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            <section class="card">
+                <div class="head">
+                    <div class="toolbar">
+                        <input id="search" placeholder="بحث بالملاحظة..." />
+                        <select id="filterStatus" style="min-width:140px">
+                            <option value="all">كل الحالات</option>
+                            <option value="unpaid">غير مسدد</option>
+                            <option value="paid">مسدد</option>
+                        </select>
+                        <select id="filterOverdue" style="min-width:180px">
+                            <option value="all">كل الديون</option>
+                            <option value="overdue">الديون المتأخرة أكثر من 30 يوم</option>
+                        </select>
+                        <select id="sortBy" style="min-width:180px">
+                            <option value="dateDesc">الأحدث أولًا</option>
+                            <option value="dateAsc">الأقدم أولًا</option>
+                            <option value="amountDesc">المبلغ: الأعلى أولًا</option>
+                            <option value="amountAsc">المبلغ: الأقل أولًا</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="stats" id="stats">
+                        <div class="stat"><div class="title">إجمالي ديون العميل</div><div class="value" id="sumAll">0</div></div>
+                        <div class="stat"><div class="title">المسدد</div><div class="value" id="sumPaid">0</div></div>
+                        <div class="stat"><div class="title">المتبقي</div><div class="value" id="sumUnpaid">0</div></div>
+                    </div>
+                    <div style="overflow:auto;margin-top:16px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>المبلغ</th>
+                                    <th>التاريخ</th>
+                                    <th>الحالة</th>
+                                    <th>ملاحظة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="debtTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="footer-note">يتم الحفظ تلقائيًا في المتصفح (LocalStorage). يمكنك التصدير أو الاستيراد من الأعلى.</div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'debtLedgerV4';
+    let data = { customers: {}, activeCustomerId: null, theme: 'system', font: 'Almarai' };
+
+    function loadData() {
+        try {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            if (storedData) {
+                data = JSON.parse(storedData);
+            }
+        } catch (e) {
+            console.error("Failed to load data from LocalStorage", e);
+            data = { customers: {}, activeCustomerId: null, theme: 'system', font: 'Almarai' };
+        }
+    }
+
+    function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        renderCustomerList();
+    }
+
+    // Theme Switcher Logic
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const themeMenu = document.getElementById('theme-menu');
+    const themeIcon = themeSwitcher.querySelector('.theme-icon');
+
+    function setTheme(theme) {
+        data.theme = theme;
+        if (theme === 'system') {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', systemTheme);
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        themeMenu.classList.remove('show');
+        localStorage.setItem('theme', theme);
+        updateThemeIcon(theme);
+        saveData();
+    }
+
+    function updateThemeIcon(theme) {
+        if (theme === 'system') {
+            themeIcon.textContent = '⚙️';
+        } else if (theme === 'dark') {
+            themeIcon.textContent = '🌙';
+        } else {
+            themeIcon.textContent = '☀️';
+        }
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (data.theme === 'system') {
+            setTheme('system');
+        }
+    });
+
+    themeSwitcher.addEventListener('click', (e) => {
+        e.stopPropagation();
+        themeMenu.classList.toggle('show');
+    });
+
+    themeMenu.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+            setTheme(e.target.dataset.theme);
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!themeSwitcher.contains(e.target)) {
+            themeMenu.classList.remove('show');
+        }
+    });
+    // End Theme Switcher Logic
+
+    // Font Selector Logic
+    const fontSwitcher = document.getElementById('font-switcher');
+    const fontMenu = document.getElementById('font-menu');
+    function setFont(font) {
+        data.font = font;
+        document.body.style.fontFamily = `"${font}", sans-serif`;
+        fontMenu.classList.remove('show');
+        saveData();
+    }
+    fontSwitcher.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fontMenu.classList.toggle('show');
+    });
+    fontMenu.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+            setFont(e.target.dataset.font);
+        }
+    });
+    document.addEventListener('click', (e) => {
+        if (!fontSwitcher.contains(e.target)) {
+            fontMenu.classList.remove('show');
+        }
+    });
+    // End Font Selector Logic
+
+    const customerListView = document.getElementById('customer-list-view');
+    const customerDetailsView = document.getElementById('customer-details-view');
+    const customerListEl = document.getElementById('customerList');
+    const addCustomerBtn = document.getElementById('addCustomerBtn');
+    const customerSearchInput = document.getElementById('customerSearch');
+    const totalAllRemainingEl = document.getElementById('totalAllRemaining');
+    const customerNameTitle = document.getElementById('customerNameTitle');
+    const backToCustomersBtn = document.getElementById('backToCustomersBtn');
+    const debtForm = document.getElementById('debtForm');
+    const debtId = document.getElementById('debtId');
+    const amountEl = document.getElementById('amount');
+    const dateEl = document.getElementById('date');
+    const statusEl = document.getElementById('status');
+    const noteEl = document.getElementById('note');
+    const formMode = document.getElementById('formMode');
+    const searchEl = document.getElementById('search');
+    const filterStatusEl = document.getElementById('filterStatus');
+    const filterOverdueEl = document.getElementById('filterOverdue');
+    const sortByEl = document.getElementById('sortBy');
+    const tbody = document.getElementById('debtTable');
+    const sumAllEl = document.getElementById('sumAll');
+    const sumPaidEl = document.getElementById('sumPaid');
+    const sumUnpaidEl = document.getElementById('sumUnpaid');
+    const printBtn = document.getElementById('printBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const importJsonInput = document.getElementById('importJson');
+    const resetFormBtn = document.getElementById('resetForm');
+    const customerModal = document.getElementById('customerModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const newCustomerName = document.getElementById('newCustomerName');
+    const newCustomerPhone = document.getElementById('newCustomerPhone');
+    const newCustomerAvatar = document.getElementById('newCustomerAvatar');
+    const customerForm = document.getElementById('customerForm');
+    const customerId = document.getElementById('customerId');
+    const modalCloseBtn = customerModal.querySelector('.modal-close');
+    const cancelCustomerBtn = document.getElementById('cancelCustomerBtn');
+    const deleteCustomerBtn = document.getElementById('deleteCustomerBtn');
+    const customerInfoPrint = document.querySelector('.customer-info-print');
+
+    const fmt = new Intl.NumberFormat('ar-IQ', { style: 'currency', currency: 'IQD', maximumFractionDigits: 0 });
+    function formatMoney(n) { return isNaN(n) ? '0' : fmt.format(Number(n)); }
+    function today() { return new Date().toISOString().slice(0, 10); }
+    function escapeHtml(s) { return (s || '').replace(/[&<>"]+/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+    function updateGeneralStats() {
+        let totalRemaining = 0;
+        Object.values(data.customers).forEach(customer => {
+            const unpaid = customer.debts.filter(d => d.status === 'unpaid').reduce((s, d) => s + Number(d.amount || 0), 0);
+            const paid = customer.debts.filter(d => d.status === 'paid').reduce((s, d) => s + Number(d.amount || 0), 0);
+            totalRemaining += unpaid - paid;
+        });
+        totalAllRemainingEl.textContent = formatMoney(totalRemaining);
+    }
+
+    function renderCustomerList() {
+        customerListView.style.display = 'block';
+        customerDetailsView.style.display = 'none';
+        customerListEl.innerHTML = '';
+        const searchTerm = customerSearchInput.value.trim().toLowerCase();
+        let customers = Object.values(data.customers);
+
+        if (searchTerm) {
+            customers = customers.filter(c => c.name.toLowerCase().includes(searchTerm));
+        }
+
+        customers.forEach(customer => {
+            const unpaidAmount = customer.debts.filter(d => d.status === 'unpaid').reduce((s, d) => s + Number(d.amount || 0), 0);
+            const paidAmount = customer.debts.filter(d => d.status === 'paid').reduce((s, d) => s + Number(d.amount || 0), 0);
+            const remaining = unpaidAmount - paidAmount;
+            const total = unpaidAmount + paidAmount;
+
+            const listItem = document.createElement('li');
+            listItem.className = 'customer-list-item';
+            listItem.innerHTML = `
+                <div class="customer-item-header">
+                    <div class="customer-info">
+                        ${customer.avatar ? `<img src="${customer.avatar}" alt="صورة العميل" class="customer-avatar">` : '<div class="customer-avatar" style="background: var(--sub);"></div>'}
+                        <div>
+                            <strong style="color:var(--text)">${escapeHtml(customer.name)}</strong>
+                            ${customer.phone ? `<div style="font-size:12px;color:var(--sub)">${escapeHtml(customer.phone)}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="customer-actions">
+                        <button class="btn" data-edit-customer="${customer.id}" style="font-size:12px; padding:8px 12px;">تعديل</button>
+                    </div>
+                </div>
+                <div class="customer-item-stats">
+                    <div class="total">الإجمالي: ${formatMoney(total)}</div>
+                    <div class="unpaid">غير المسدد: ${formatMoney(unpaidAmount)}</div>
+                    <div class="paid">المسدد: ${formatMoney(paidAmount)}</div>
+                </div>
+            `;
+            listItem.addEventListener('click', (e) => {
+                if (!e.target.dataset.editCustomer) {
+                    data.activeCustomerId = customer.id;
+                    saveData();
+                    renderCustomerDetails();
+                }
+            });
+            customerListEl.appendChild(listItem);
+        });
+
+        updateGeneralStats();
+    }
+
+    customerListEl.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t.dataset.editCustomer) {
+            const customer = data.customers[t.dataset.editCustomer];
+            if (customer) {
+                openCustomerModal(customer);
+            }
+        }
+    });
+
+    function renderCustomerDetails() {
+        if (!data.activeCustomerId || !data.customers[data.activeCustomerId]) {
+            renderCustomerList();
+            return;
+        }
+
+        const customer = data.customers[data.activeCustomerId];
+        customerListView.style.display = 'none';
+        customerDetailsView.style.display = 'block';
+        customerNameTitle.textContent = customer.name;
+
+        // Update print info for the print media query
+        customerInfoPrint.innerHTML = `
+            ${customer.avatar ? `<img src="${customer.avatar}" alt="صورة العميل" class="customer-avatar-print">` : ''}
+            <div>
+                ${customer.phone ? `<div style="font-size:14px;color:black; margin-top: 10px;">رقم الهاتف: ${escapeHtml(customer.phone)}</div>` : ''}
+                <div style="font-size:14px;color:black;margin-top:5px;">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-IQ')}</div>
+            </div>
+        `;
+
+        let debts = [...customer.debts];
+
+        const q = searchEl.value.trim();
+        if (q) debts = debts.filter(d => (d.note && d.note.includes(q)));
+
+        const fs = filterStatusEl.value;
+        if (fs !== 'all') debts = debts.filter(d => d.status === fs);
+
+        const fo = filterOverdueEl.value;
+        const now = new Date();
+        debts = debts.map(d => {
+            d.overdue = false;
+            if (d.status === 'unpaid' && d.date && ((now - new Date(d.date)) / (1000 * 60 * 60 * 24)) > 30) {
+                d.overdue = true;
+            }
+            return d;
+        });
+        if (fo === 'overdue') debts = debts.filter(d => d.overdue);
+
+        const sort = sortByEl.value;
+        debts.sort((a, b) => {
+            if (sort === 'dateDesc') return (b.date || '').localeCompare(a.date || '');
+            if (sort === 'dateAsc') return (a.date || '').localeCompare(b.date || '');
+            if (sort === 'amountDesc') return Number(b.amount) - Number(a.amount);
+            if (sort === 'amountAsc') return Number(a.amount) - Number(b.amount);
+            return 0;
+        });
+
+        tbody.innerHTML = '';
+        if (debts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--sub)">لا توجد ديون مسجلة لهذا العميل.</td></tr>';
+        } else {
+            for (const d of debts) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600">${formatMoney(d.amount)}</td>
+                    <td>${d.date || ''}</td>
+                    <td><span class="tag ${d.status === 'paid' ? 'paid' : 'unpaid'}">${d.status === 'paid' ? 'مسدد' : 'غير مسدد'}</span></td>
+                    <td>${escapeHtml(d.note || '')} ${d.overdue ? '<span style="color:var(--danger)">⚠️</span>' : ''}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn" data-edit="${d.id}">تحرير</button>
+                            <button class="btn warn" data-del="${d.id}">حذف</button>
+                        </div>
+                    </td>`;
+                tbody.appendChild(tr);
+            }
+        }
+
+        const sumUnpaidAmount = debts.filter(d => d.status === 'unpaid').reduce((s, d) => s + Number(d.amount || 0), 0);
+        const sumPaidAmount = debts.filter(d => d.status === 'paid').reduce((s, d) => s + Number(d.amount || 0), 0);
+        const remainingAmount = sumUnpaidAmount - sumPaidAmount;
+
+        sumAllEl.textContent = formatMoney(sumUnpaidAmount);
+        sumPaidEl.textContent = formatMoney(sumPaidAmount);
+        sumUnpaidEl.textContent = formatMoney(remainingAmount);
+    }
+
+    // Modal & Add/Edit Customer Logic
+    function openCustomerModal(customer = null) {
+        if (customer) {
+            modalTitle.textContent = 'تعديل العميل';
+            customerId.value = customer.id;
+            newCustomerName.value = customer.name;
+            newCustomerPhone.value = customer.phone || '';
+            deleteCustomerBtn.style.display = 'inline-block';
+        } else {
+            modalTitle.textContent = 'إضافة عميل جديد';
+            customerId.value = '';
+            newCustomerName.value = '';
+            newCustomerPhone.value = '';
+            newCustomerAvatar.value = '';
+            deleteCustomerBtn.style.display = 'none';
+        }
+        customerModal.style.display = 'flex';
+    }
+
+    addCustomerBtn.addEventListener('click', () => openCustomerModal());
+
+    modalCloseBtn.addEventListener('click', () => {
+        customerModal.style.display = 'none';
+    });
+
+    cancelCustomerBtn.addEventListener('click', () => {
+        customerModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === customerModal) {
+            customerModal.style.display = 'none';
+        }
+    });
+
+    customerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = customerId.value;
+        const name = newCustomerName.value.trim();
+        const phone = newCustomerPhone.value.trim();
+        const avatarFile = newCustomerAvatar.files[0];
+
+        if (!name) return;
+
+        const isDuplicate = Object.values(data.customers).some(c => c.id !== id && c.name.trim().toLowerCase() === name.toLowerCase());
+        if (isDuplicate) {
+            alert('عفواً، هذا الاسم موجود بالفعل!');
+            return;
+        }
+
+        const customer = id ? data.customers[id] : { id: crypto.randomUUID(), debts: [] };
+        customer.name = name;
+        customer.phone = phone;
+
+        const handleSave = () => {
+            data.customers[customer.id] = customer;
+            saveData();
+            customerModal.style.display = 'none';
+            alert('تم الحفظ بنجاح!');
+        };
+
+        if (avatarFile) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                customer.avatar = e.target.result;
+                handleSave();
+            };
+            reader.readAsDataURL(avatarFile);
+        } else {
+            handleSave();
+        }
+    });
+
+    deleteCustomerBtn.addEventListener('click', () => {
+        const id = customerId.value;
+        if (confirm('هل أنت متأكد من حذف هذا العميل وجميع ديونه؟')) {
+            delete data.customers[id];
+            data.activeCustomerId = null;
+            saveData();
+            customerModal.style.display = 'none';
+            renderCustomerList();
+        }
+    });
+
+    backToCustomersBtn.addEventListener('click', () => {
+        data.activeCustomerId = null;
+        saveData();
+    });
+
+    customerSearchInput.addEventListener('input', renderCustomerList);
+
+    debtForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const customer = data.customers[data.activeCustomerId];
+        if (!customer) return;
+
+        const id = debtId.value || crypto.randomUUID();
+        const payload = {
+            id,
+            amount: Number(amountEl.value || 0),
+            date: dateEl.value || today(),
+            status: statusEl.value,
+            note: noteEl.value.trim()
+        };
+
+        const i = customer.debts.findIndex(d => d.id === id);
+        if (i > -1) {
+            customer.debts[i] = payload;
+        } else {
+            customer.debts.unshift(payload);
+        }
+
+        saveData();
+        renderCustomerDetails();
+        debtForm.reset();
+        debtId.value = '';
+        formMode.textContent = 'وضع الإضافة';
+    });
+
+    tbody.addEventListener('click', e => {
+        const t = e.target;
+        const customer = data.customers[data.activeCustomerId];
+        if (!customer) return;
+
+        if (t.dataset.edit) {
+            const d = customer.debts.find(x => x.id === t.dataset.edit);
+            if (!d) return;
+            debtId.value = d.id;
+            amountEl.value = d.amount;
+            dateEl.value = d.date || '';
+            statusEl.value = d.status;
+            noteEl.value = d.note || '';
+            formMode.textContent = 'وضع التعديل';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (t.dataset.del) {
+            if (confirm('هل أنت متأكد من حذف هذا الدين؟')) {
+                customer.debts = customer.debts.filter(d => d.id !== t.dataset.del);
+                saveData();
+                renderCustomerDetails();
+            }
+        }
+    });
+
+    resetFormBtn.addEventListener('click', () => {
+        debtForm.reset();
+        debtId.value = '';
+        formMode.textContent = 'وضع الإضافة';
+    });
+
+    [searchEl, filterStatusEl, filterOverdueEl, sortByEl].forEach(el => el.addEventListener('input', renderCustomerDetails));
+
+    exportCsvBtn.addEventListener('click', () => {
+        const allData = Object.values(data.customers).flatMap(customer =>
+            customer.debts.map(debt => ({
+                'اسم العميل': customer.name,
+                'رقم الهاتف': customer.phone || '',
+                'المبلغ': debt.amount,
+                'التاريخ': debt.date,
+                'الحالة': debt.status === 'paid' ? 'مسدد' : 'غير مسدد',
+                'ملاحظة': debt.note
+            }))
+        );
+
+        if (allData.length === 0) {
+            alert('لا توجد بيانات لتصديرها.');
+            return;
+        }
+
+        const headers = Object.keys(allData[0]);
+        const csv = [
+            `"${headers.join('","')}"`,
+            ...allData.map(row => `"${headers.map(h => String(row[h] || '').replace(/"/g, '""')).join('","')}"`)
+        ].join('\n');
+
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'كل_الديون.csv';
+        a.click();
+    });
+
+    exportJsonBtn.addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'debts.json';
+        a.click();
+    });
+
+    importJsonInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const fr = new FileReader();
+        fr.onload = () => {
+            try {
+                const importedData = JSON.parse(fr.result);
+                data.customers = { ...data.customers, ...importedData.customers };
+                data.activeCustomerId = null;
+                saveData();
+                alert('تم الاستيراد بنجاح!');
+            } catch (err) {
+                alert('خطأ في الملف');
+            }
+        };
+        fr.readAsText(file);
+        e.target.value = '';
+    });
+
+    printBtn.addEventListener('click', () => { window.print(); });
+
+    loadData();
+    if (data.activeCustomerId) {
+        renderCustomerDetails();
+    } else {
+        renderCustomerList();
+    }
+    // Set theme and font on initial load
+    setTheme(data.theme);
+    setFont(data.font);
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(() => console.log('SW registered')).catch(console.error);
+    }
+</script>
+</body>
+</html>
