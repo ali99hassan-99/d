@@ -97,7 +97,7 @@
         }
         .customer-item-stats .unpaid { background-color: rgba(229, 62, 62, 0.15); color: var(--danger); }
         .customer-item-stats .paid { background-color: rgba(56, 161, 105, 0.15); color: var(--accent); }
-        .customer-item-stats .total { background-color: rgba(76, 120, 169, 0.15); color: #4c78a9; }
+        .customer-item-stats .remaining { background-color: rgba(76, 120, 169, 0.15); color: #4c78a9; }
         .customer-list-item {
             display: flex;
             flex-direction: column;
@@ -236,12 +236,12 @@
                 margin-top: 24px;
             }
         }
-
+        
         @media print {
             body { background: white; color: black; }
             .container { padding: 0; margin: 0; max-width: none; }
             header, .card .head, .toolbar, .footer-note, #backToCustomersBtn, #formCard, .modal, .theme-switcher, .font-switcher, #addCustomerBtn, .customer-actions, .actions { display: none; }
-
+            
             #customer-details-view header {
                 display: flex;
                 align-items: center;
@@ -264,9 +264,9 @@
                 gap: 5px;
             }
             .card { border: none; box-shadow: none; background: white; }
-            h1 {
-                font-size: 28px;
-                color: black;
+            h1 { 
+                font-size: 28px; 
+                color: black; 
                 display: block;
             }
             .grid { display: block; }
@@ -381,7 +381,7 @@
         </form>
       </div>
     </div>
-
+    
     <div id="customer-details-view" style="display:none;">
         <header>
             <div class="brand">
@@ -494,7 +494,7 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         renderCustomerList();
     }
-
+    
     // Theme Switcher Logic
     const themeSwitcher = document.getElementById('theme-switcher');
     const themeMenu = document.getElementById('theme-menu');
@@ -513,7 +513,7 @@
         updateThemeIcon(theme);
         saveData();
     }
-
+    
     function updateThemeIcon(theme) {
         if (theme === 'system') {
             themeIcon.textContent = '⚙️';
@@ -612,7 +612,7 @@
     const cancelCustomerBtn = document.getElementById('cancelCustomerBtn');
     const deleteCustomerBtn = document.getElementById('deleteCustomerBtn');
     const customerInfoPrint = document.querySelector('.customer-info-print');
-
+    
     const fmt = new Intl.NumberFormat('ar-IQ', { style: 'currency', currency: 'IQD', maximumFractionDigits: 0 });
     function formatMoney(n) { return isNaN(n) ? '0' : fmt.format(Number(n)); }
     function today() { return new Date().toISOString().slice(0, 10); }
@@ -634,7 +634,7 @@
         customerListEl.innerHTML = '';
         const searchTerm = customerSearchInput.value.trim().toLowerCase();
         let customers = Object.values(data.customers);
-
+        
         if (searchTerm) {
             customers = customers.filter(c => c.name.toLowerCase().includes(searchTerm));
         }
@@ -643,8 +643,7 @@
             const unpaidAmount = customer.debts.filter(d => d.status === 'unpaid').reduce((s, d) => s + Number(d.amount || 0), 0);
             const paidAmount = customer.debts.filter(d => d.status === 'paid').reduce((s, d) => s + Number(d.amount || 0), 0);
             const remaining = unpaidAmount - paidAmount;
-            const total = unpaidAmount + paidAmount;
-
+            
             const listItem = document.createElement('li');
             listItem.className = 'customer-list-item';
             listItem.innerHTML = `
@@ -661,7 +660,7 @@
                     </div>
                 </div>
                 <div class="customer-item-stats">
-                    <div class="total">الإجمالي: ${formatMoney(total)}</div>
+                    <div class="remaining">المتبقي: ${formatMoney(remaining)}</div>
                     <div class="unpaid">غير المسدد: ${formatMoney(unpaidAmount)}</div>
                     <div class="paid">المسدد: ${formatMoney(paidAmount)}</div>
                 </div>
@@ -678,7 +677,7 @@
 
         updateGeneralStats();
     }
-
+    
     customerListEl.addEventListener('click', (e) => {
         const t = e.target;
         if (t.dataset.editCustomer) {
@@ -699,7 +698,7 @@
         customerListView.style.display = 'none';
         customerDetailsView.style.display = 'block';
         customerNameTitle.textContent = customer.name;
-
+        
         // Update print info for the print media query
         customerInfoPrint.innerHTML = `
             ${customer.avatar ? `<img src="${customer.avatar}" alt="صورة العميل" class="customer-avatar-print">` : ''}
@@ -766,7 +765,7 @@
         sumPaidEl.textContent = formatMoney(sumPaidAmount);
         sumUnpaidEl.textContent = formatMoney(remainingAmount);
     }
-
+    
     // Modal & Add/Edit Customer Logic
     function openCustomerModal(customer = null) {
         if (customer) {
@@ -791,11 +790,11 @@
     modalCloseBtn.addEventListener('click', () => {
         customerModal.style.display = 'none';
     });
-
+    
     cancelCustomerBtn.addEventListener('click', () => {
         customerModal.style.display = 'none';
     });
-
+    
     window.addEventListener('click', (e) => {
         if (e.target === customerModal) {
             customerModal.style.display = 'none';
@@ -855,7 +854,7 @@
         data.activeCustomerId = null;
         saveData();
     });
-
+    
     customerSearchInput.addEventListener('input', renderCustomerList);
 
     debtForm.addEventListener('submit', (e) => {
@@ -871,14 +870,14 @@
             status: statusEl.value,
             note: noteEl.value.trim()
         };
-
+        
         const i = customer.debts.findIndex(d => d.id === id);
         if (i > -1) {
             customer.debts[i] = payload;
         } else {
             customer.debts.unshift(payload);
         }
-
+        
         saveData();
         renderCustomerDetails();
         debtForm.reset();
@@ -890,7 +889,7 @@
         const t = e.target;
         const customer = data.customers[data.activeCustomerId];
         if (!customer) return;
-
+        
         if (t.dataset.edit) {
             const d = customer.debts.find(x => x.id === t.dataset.edit);
             if (!d) return;
